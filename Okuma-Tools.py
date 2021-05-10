@@ -4,6 +4,7 @@ import argparse
 import shutil
 from PIL import Image
 import json
+from natsort import os_sorted
 
 def saveJSON(data, filePath):
     with open(filePath, 'w') as f:
@@ -81,7 +82,7 @@ def main():
     #titleConfig['japaneseOrder']    = 'false'
     saveJSON(titleConfig, titleJSON)
     
-    for f in os.listdir(inputFolder):
+    for f in os_sorted(os.listdir(inputFolder)):
         fName, fExt = os.path.splitext(f)
         image = Image.open(inputFolder + f)
         if grayscale:
@@ -165,7 +166,7 @@ if autofit:
     print('Autofit option enabled:')
 
     ratios = []
-    fileList = os.listdir(inputFolder)
+    fileList = os_sorted(os.listdir(inputFolder))
     for f in fileList:
         image = Image.open(inputFolder + f)
         width, height = image.size
