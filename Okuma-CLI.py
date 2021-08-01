@@ -277,7 +277,7 @@ if libraryPath[-1] != '\\' and libraryPath[-1] != '/': libraryPath += '/'
 displayTitleBox("SELECTED LIBRARY", libraryPath)
 
 if not os.listdir(libraryPath):
-    data = {'titles': ['lol']}
+    data = {'titles': []}
     saveJSON(data, libraryPath + 'config.json')    
 
     
