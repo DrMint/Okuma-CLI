@@ -18,7 +18,6 @@ def loadJSON(filePath):
 
 
 
-
 def createTitle():
     displayTitleBox("CREATE TITLE")
 
@@ -109,8 +108,9 @@ def createTitle():
    
 
     title = displayQuery('Enter a name for this title')
+    titleSlug = slugify(title).lower()
     
-    outputFolder = libraryPath + slugify(title).lower() + '/'
+    outputFolder = libraryPath + titleSlug + '/'
     if outputFolder[-1] != '\\' and outputFolder[-1] != '/': outputFolder += '/'
 
     overwrite = False
@@ -245,12 +245,10 @@ def createTitle():
       "japaneseOrder": japaneseOrder
     }
     saveJSON(data, outputFolder + 'config.json')
-    
 
-
-
-
-
+    data = loadJSON(libraryPath + 'config.json')
+    if titleSlug not in data['titles']: data['titles'] += [titleSlug]
+    saveJSON(data, libraryPath + 'config.json')
 
 
 
