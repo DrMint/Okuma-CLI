@@ -23,7 +23,7 @@ def createTitle():
 
     titleType = displayOptions('What type of document is it?', [e['name'] for e in types])
     titleType = types[titleType - 1]
-    
+
     inputPath = displayQuery('Enter path to the book folder', lambda x : os.path.isdir(x), "The given path is incorrect.")
     if inputPath[-1] != '\\' and inputPath[-1] != '/': inputPath += '/'
 
@@ -105,11 +105,11 @@ def createTitle():
                 if hasFolder:
                     print(errorified('There are subfolders in the chapter-level folders. This is not supposed to be the case. Aborting.'))
                     exit()
-   
+
 
     title = displayQuery('Enter a name for this title')
     titleSlug = slugify(title).lower()
-    
+
     outputFolder = libraryPath + titleSlug + '/'
     if outputFolder[-1] != '\\' and outputFolder[-1] != '/': outputFolder += '/'
 
@@ -169,12 +169,19 @@ def createTitle():
 
     print('\n')
 
+    previousSaveFolder = None
     for fileIndex, fileImage in enumerate(images):
 
         print('\033[1A' + 'Progression: ' + str(fileIndex + 1) + '/' + str(len(images)))
-        
+
         saveFolder = outputFolder + str(fileImage['volume']) + '/'
         if not os.path.isdir(saveFolder):
+            if previousSaveFolder:
+                data = loadJSON(previousSaveFolder + 'config.json')
+                data['numPages'] = imageIndex - 1
+                saveJSON(data, previousSaveFolder + 'config.json')
+            previousSaveFolder = saveFolder
+
             currentChapter = 0
             imageIndex = 1
             os.mkdir(saveFolder)
@@ -185,7 +192,7 @@ def createTitle():
             if autofit: meanRatio = autofitCalculate(images)
 
             # Volume level
-            data = {'bookmarks': []}
+            data = {'numPages': 0, 'bookmarks': []}
             saveJSON(data, saveFolder + 'config.json')
 
         if currentChapter != fileImage['chapter']:
@@ -193,8 +200,8 @@ def createTitle():
             data = loadJSON(saveFolder + 'config.json')
             data['bookmarks'] += [{'name':'', 'type':'chapter', 'page': imageIndex}]
             saveJSON(data, saveFolder + 'config.json')
-            
-        
+
+
         fName, fExt = os.path.splitext(fileImage['path'])
         image = Image.open(fileImage['path'])
 
@@ -203,7 +210,7 @@ def createTitle():
         width, height = image.size
 
         if (width / height) > splitPoint and titleType['supportDoublePage']:
-            
+
             left, right = cutInHalfImage(image)
 
             if (japaneseOrder):
@@ -212,13 +219,13 @@ def createTitle():
             else:
                 firstImage = left
                 secondImage = right
-                
+
             saveImage(resizeImage(firstImage, maxSize, meanRatio, titleType['resizeType']),
                       saveFolder,
                       imageIndex,
                       useJPEG,
                       quality)
-            
+
             imageIndex += 1
             saveImage(resizeImage(secondImage, maxSize, meanRatio, titleType['resizeType']),
                       saveFolder,
@@ -226,7 +233,7 @@ def createTitle():
                       useJPEG,
                       quality)
         else:
-            
+
             saveImage(resizeImage(image, maxSize, meanRatio, titleType['resizeType']),
                       saveFolder,
                       imageIndex,
@@ -237,6 +244,11 @@ def createTitle():
 
 
     # -- Write the JSON files --
+    data = loadJSON(saveFolder + 'config.json')
+    data['numPages'] = imageIndex - 1
+    saveJSON(data, saveFolder + 'config.json')
+
+
     data = {
       "title": title,
       "bookType": titleType['slug'],
@@ -278,10 +290,9 @@ displayTitleBox("SELECTED LIBRARY", libraryPath)
 
 if not os.listdir(libraryPath):
     data = {'titles': []}
-    saveJSON(data, libraryPath + 'config.json')    
+    saveJSON(data, libraryPath + 'config.json')
 
-    
+
 option = displayOptions('What do you want to do?', ['Create a new title', 'Modify an existing title', 'Manage or repair the library'])
 
 if option == 1: createTitle()
-    
