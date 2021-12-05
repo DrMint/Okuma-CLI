@@ -6,4 +6,4 @@ Manage your library and edit the books meta-data.
 ## Python dependencies
 Python 3
 
-`pip install awesome-slugify natsort Pillow`
+`pip install awesome-slugify natsort Pillow psd-tools3`
