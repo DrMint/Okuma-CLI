@@ -1,6 +1,14 @@
 from PIL import Image
+from psd_tools import PSDImage
 from natsort import os_sorted
 import os
+
+def openImage(path):
+    fName, fExt = os.path.splitext(path)
+    if fExt == '.psd':
+        return PSDImage.load(path).as_PIL()
+    else:
+        return Image.open(path)
 
 def saveImage(image, folder, index, useJPEG, quality):
     if (useJPEG):
@@ -38,26 +46,6 @@ def resizeImage(image, maxSize, meanRatio, resizeType):
 
     if (newWidth != width or newHeight != height):
         image = image.resize((newWidth, newHeight))
-
-
-    '''
-    if meanRatio:
-        
-        if height > maxSize:
-            newWidth = int(maxSize * meanRatio)
-            newHeight = maxSize
-        else:
-            newWidth = int(height * meanRatio)
-            newHeight = height
-        image = image.resize((newWidth, newHeight))
-
-    else:
-        
-        if height > maxSize:
-            newWidth = int(width * maxSize / height)
-            newHeight = maxSize
-            image = image.resize((newWidth, newHeight))
-    '''
             
     return image
 
@@ -71,7 +59,7 @@ def cutInHalfImage(image):
 def analysePageProfile(images):
     ratios = []
     for f in images:
-        image = Image.open(f['path'])
+        image = openImage(f['path'])
         width, height = image.size
         ratios += [width / height]
 
@@ -84,7 +72,7 @@ def analysePageProfile(images):
 def autofitCalculate(images):
     ratios = []
     for f in images:
-        image = Image.open(f['path'])
+        image = openImage(f['path'])
         width, height = image.size
         ratios += [width / height]
 

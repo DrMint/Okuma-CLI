@@ -201,9 +201,7 @@ def createTitle():
             data['bookmarks'] += [{'name':'', 'type':'chapter', 'page': imageIndex}]
             saveJSON(data, saveFolder + 'config.json')
 
-
-        fName, fExt = os.path.splitext(fileImage['path'])
-        image = Image.open(fileImage['path'])
+        image = openImage(fileImage['path'])
 
         if grayscale:
             image = image.convert('L')
